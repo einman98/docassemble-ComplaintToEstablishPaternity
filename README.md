@@ -40,7 +40,7 @@ It is my position that an automated guided interview to establish paternity is m
 
 ## Real World Viability
 
-My opinion is that my interview is close to being ready for real-world use. Aside from the signature block that I had mentioned earlier, the rest of the form operates to full completion. It is my hope that I will have some time in the foreseeable future to refine this interview and include it in the bigger project that I am working on in the Legal Innovations and Technology Lab. Otherwise, this interview is accessible to be tested. 
+My opinion is that my interview is close to being ready for real-world use. Aside from the signature block that I had mentioned earlier, the rest of the form operates to full completion. It is my hope that I will have some time in the foreseeable future to refine this interview and include it in the bigger project that I am working on in the Legal Innovations and Technology Lab. Otherwise, this interview is accessible to be tested. To access my guided interview, please click here: https://apps-dev.suffolklitlab.org/interview?i=docassemble.playground319EstablishPaternityAndUncontestedDivorce%3Acomplaint_to_establish_paternity.yml#page1
 
 ## Sustainability
 
