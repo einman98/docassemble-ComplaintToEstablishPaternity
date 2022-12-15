@@ -1,0 +1,750 @@
+---
+include:
+  - docassemble.AssemblyLine:assembly_line.yml
+  - docassemble.ALMassachusetts:al_massachusetts.yml
+  - docassemble.MassAccess:massaccess.yml
+---
+metadata:
+  title: |
+    Complaint to Establish Paternity
+  short title: |
+    Complaint to Establish Paternity
+  tags:
+    - FA-00-00-00-00
+  authors:
+    - Elicia M. Inman
+---
+mandatory: True
+comment: |
+  Global interview metadata
+variable name: interview_metadata["complaint_to_establish_paternity"]
+data:
+  al_weaver_version: "1.8.0"
+  generated on: "2022-12-15"
+  title: >-
+    Complaint to Establish Paternity
+  short title: >-
+    Complaint to Establish Paternity
+  description: |-
+    This is a form to establish paternity for a child born out of wedlock.
+  original_form: >-
+    https://courtforms.jud.state.ma.us/publicforms/PFC0048
+  allowed courts: 
+    - "Probate and Family Court"
+  categories:
+    - "FA-00-00-00-00"
+  typical role: "plaintiff"
+  generate download screen: True
+---
+code: |
+  interview_metadata['main_interview_key'] =  'complaint_to_establish_paternity'
+---
+code: |
+  # This controls the default country and list of states in address field questions
+  AL_DEFAULT_COUNTRY = "US"
+---
+code: |
+  # This controls the default state in address field questions
+  AL_DEFAULT_STATE = "MA"
+---
+code: |
+  github_repo_name =  'docassemble-ComplaintToEstablishPaternity'
+---
+code: |
+  interview_short_title = "Ask the court to establish that an individual is the parent of a child where the parents have never married"
+---
+code: |
+  al_form_type = "starts_case" 
+---
+objects:
+  - users: ALPeopleList.using(ask_number=True,target_number=1)
+---
+sections:
+  - review_complaint_to_establish_paternity: Review your answers
+---
+#################### Interview order #####################
+comment: |
+  Controls order and branching logic for questions specific to this form
+id: interview_order_complaint_to_establish_paternity
+code: |
+  # Set the allowed courts for this interview
+  allowed_courts = interview_metadata["complaint_to_establish_paternity"]["allowed courts"]
+  nav.set_section("review_complaint_to_establish_paternity")
+  user_role = "plaintiff"
+  user_ask_role = "plaintiff"
+  set_progress(32)
+  users.gather()
+  set_parts(subtitle=str(users))
+  docket_number
+  trial_court.division
+  other_parties.gather()
+  set_progress(40)
+  users[0].address.address
+  set_progress(48)
+  children.gather()
+  children[0].birthdate
+  set_progress(56)
+  children[0].address.address
+  set_progress(64)
+  other_parties[0].address.address
+  set_progress(72)
+  signature_date
+  users[0].phone_number
+  
+  if is_parent_yes == True:
+    is_mother_yes
+    is_father_yes
+  is_child_yes
+  is_guardian_yes
+  set_progress(8)
+  is_custodian_yes
+  is_other_party_mother_of_child_yes
+  is_other_party_father_of_child_yes    
+  if is_mother_gp_pr_yes == True:
+    is_grandparent_yes
+    is_personal_representative_yes
+  if is_father_gp_pr_yes == True:
+    is_grandparent_yes
+    is_personal_representative_yes
+  if is_other_agency_yes == True:
+    is_dor_yes
+    is_dcf_yes
+    is_agency_yes
+  set_progress(16)
+  if is_adjudicate_the_user_or_other_party_to_be_father_of_child_yes_variable == True:
+    is_adjudicate_plaintiff_yes
+    is_adjudicate_defendant_yes
+  is_to_order_suitable_amount_of_child_support_yes
+  if is_asking_order_the_user_or_other_party_to_maintain_or_provide_insurance_yes_variable == True:
+    is_order_plaintiff_health_insurance_yes
+    is_order_defendant_health_insurance_yes
+    is_maintain_health_insurance_yes
+    is_provide_health_insurance_yes
+  set_progress(20)
+  if is_asking_grant_user_or_other_party_custody_yes == True:
+    is_granting_plaintiff_custody_yes
+    is_granting_defendant_custody_yes
+  if is_asking_grant_user_or_other_party_parenting_time_yes == True:
+    is_granting_defendant_parenting_time_yes
+  is_asking_to_prohibit_other_party_from_imposing_restraint_yes
+  interview_order_complaint_to_establish_paternity = True
+---
+###################### Main order ######################
+comment: |
+  This block includes the logic for standalone interviews.
+  Delete mandatory: True to include in another interview
+mandatory: True
+code: |
+  al_intro_screen
+  complaint_to_establish_paternity_intro
+  interview_order_complaint_to_establish_paternity
+  signature_date
+  # Store anonymous data for analytics / statistics
+  store_variables_snapshot(
+      persistent=True,
+      data={
+          "zip": showifdef("users[0].address.zip"),
+          "reached_interview_end": True,
+      },
+  )
+  complaint_to_establish_paternity_download
+---
+comment: |
+  This question is used to introduce your interview. Please customize
+id: Complaint_to_Establish_Paternity
+continue button field: complaint_to_establish_paternity_intro
+question: |
+  Complaint to Establish Paternity Eligibility
+subquestion: |
+  Before you begin filling out this form, please confirm all the information below is true and accurate. If not, you are not eligible to fill out this form. 
+
+  ### You can use this form only if:
+  
+  1. You and the other party are not married, **and**
+  2. The mother of the child was not married at the time of the child's birth and was not married within 300 days before the birth of the child.
+  
+  ### The following must be filed with this form:
+  
+  1. A copy of the child's birth certificate, **and**
+  2. Affidavit of Care and Custody (available at the courthouse)
+under: |
+  **Please Note:** You must file a separate form for each child.
+---
+id: What is your relationship with the child
+question: |
+  What is your relationship with the child?
+fields:
+  - "I am the parent of the child": is_parent_yes
+    datatype: yesnowide
+  - "I am the child born out of wedlock": is_child_yes
+    datatype: yesnowide
+  - "I am the legal guardian of the child": is_guardian_yes
+    datatype: yesnowide
+  - "I am the custodian of the child": is_custodian_yes
+    datatype: yesnowide
+  - "I am the parent or personal representative of the mother": is_mother_gp_pr_yes
+    datatype: yesnowide
+  - "I am the parent or personal representative of the father": is_father_gp_pr_yes
+    datatype: yesnowide
+  - "I am an agency or department": is_other_agency_yes
+    datatype: yesnowide
+---
+question: |
+  Please be more specific.
+subquestion: |
+  Are you the parent or personal representative of the child's parent?
+fields:
+  - "I am the parent": is_grandparent_yes
+    datatype: yesnowide
+  - "I am the personal representative": is_personal_representative_yes
+    datatype: yesnowide
+---
+id: Child parents
+question: |
+  Are you the child's mother or father?
+fields:
+  - "I am the mother": is_mother_yes
+    datatype: yesnowide
+  - "I am the father": is_father_yes
+    datatype: yesnowide
+---
+id: What is your relationship with the child
+question: |
+  Are you any of the following agencies?
+fields:
+  - "Department of Revenue": is_dor_yes
+    datatype: yesnowide
+  - "Department of Children and Families": is_dcf_yes
+    datatype: yesnowide
+  - "an agency licensed under G. L. c. 28A": is_agency_yes
+    datatype: yesnowide
+---
+id: What is the other party s relationship with the child
+question: |
+  What is the other party's relationship with the child?
+subquestion: |
+  Is the other party the mother or father of the child?
+fields:
+  - "The other party is the child's mother": is_other_party_mother_of_child_yes
+    datatype: yesnowide
+  - "The other party is the child's father": is_other_party_father_of_child_yes
+    datatype: yesnowide
+---
+id: What would you like to request the Court do
+question: |
+  Select your request(s) to ask the Court.
+fields:
+  - "I want to establish one person as the parent of the child": is_adjudicate_the_user_or_other_party_to_be_father_of_child_yes_variable
+    datatype: yesnowide
+  - "I want child support": is_to_order_suitable_amount_of_child_support_yes
+    datatype: yesnowide
+  - "I want an order for health insurance benefits of my child": is_asking_order_the_user_or_other_party_to_maintain_or_provide_insurance_yes_variable
+    datatype: yesnowide
+  - "I want to forbid other party from imposing restraint on our personal liberty": is_asking_to_prohibit_other_party_from_imposing_restraint_yes
+    datatype: yesnowide
+  - "I want an order for child custody": is_asking_grant_user_or_other_party_custody_yes
+    datatype: yesnowide
+  - "I want an order for parenting time with the child": is_asking_grant_user_or_other_party_parenting_time_yes
+    datatype: yesnowide
+---
+question: |
+  Establishing Parentage. 
+subquestion: |
+  Based on your request, would you like the Court to adjudicate you or the other party to be the parent of the child?
+fields:
+  - "Adjudicate me": is_adjudicate_plaintiff_yes
+    datatype: yesnowide
+  - "Adjudicate other party": is_adjudicate_defendant_yes
+    datatype: yesnowide
+---
+id: What would you like to request the Court do
+question: |
+  Establishing Health Insurance Benefits.
+subquestion: |
+  Who's health insurance should be used for the benefit of the child?
+fields:
+  - "The Court should use my health insurance": is_order_plaintiff_health_insurance_yes
+    datatype: yesnowide
+  - "The Court should use the other party's health insurance": is_order_defendant_health_insurance_yes
+    datatype: yesnowide
+---
+question: |
+  Establishing Health Insurance Benefits.
+subquestion: |
+  Would you like the Court to order the party to **maintain** or **provide** the health insurance for the benefit of the child?
+fields:
+  - "The health insurance should be maintained": is_maintain_health_insurance_yes
+    datatype: yesnowide
+  - "The health insurance should be provided": is_provide_health_insurance_yes
+    datatype: yesnowide
+---
+id: What would you like to request the Court do
+question: |
+  Establishing Personal Liberty.
+subquestion: |
+  Would you like to prohibit the other party from imposing any restraint on the personal liberty of **you** and/or **the child**? Select one or both.
+fields:
+  - "Prohibit restraint on my personal liberty": is_prohibiting_restraint_on_plaintiff_yes
+    datatype: yesnowide
+  - "Prohibit restraint on the child's personal liberty": is_prohibiting_restraint_on_child_yes
+    datatype: yesnowide
+---
+id: What would you like to request the Court do
+question: |
+  Establishing Child Custody.
+subquestion: |
+  Would you like the Court to grant you or the other party custody of the child?
+fields:
+  - "Grant child custody to me": is_granting_plaintiff_custody_yes
+    datatype: yesnowide
+  - "Grant child custody to the other party": is_granting_defendant_custody_yes
+    datatype: yesnowide
+---
+id: What would you like to request the Court do
+question: |
+  Establishing Parenting Time.
+subquestion: |
+  Who would you like the Court to grant parenting time with the child?
+fields:
+  - "I want parenting time": is_granting_plaintiff_parenting_time_yes
+    datatype: yesnowide
+  - "I want the other party to have parenting time": is_granting_defendant_parenting_time_yes
+    datatype: yesnowide
+---
+id: Please confirm your contact information
+question: |
+  Please confirm your contact information
+subquestion: |
+  Finally, this form will require your signature and address information. Please confirm this information.
+fields:
+  - "Users1 name 1": users1_name_1
+    maxlength: 48
+  - "Users1 address unit 1": users1_address_unit_1
+    maxlength: 12
+  - "Users1 address address 1": users1_address_address_1
+    maxlength: 35
+  - "Users1 address city 1": users1_address_city_1
+    maxlength: 27
+  - "Users1 address state 1": users1_address_state_1
+    maxlength: 6
+  - "Users1 address zip 1": users1_address_zip_1
+    maxlength: 12
+---
+id: preview complaint_to_establish_paternity
+question: |
+  Preview your form before you sign it
+subquestion: |
+  Here is a preview of the form you will sign on the next page.   
+  
+  ${ al_court_bundle.as_pdf(key='preview') }
+
+  Click the image to open it in a new tab. Click the "Edit answers" button
+  to edit your answers.
+
+  ${ action_button_html(url_action('review_complaint_to_establish_paternity'), label='Edit answers', color='info') }
+  
+  Remember to come back to this window to continue and sign your form.
+continue button field: complaint_to_establish_paternity_preview_question    
+---
+code: |
+  signature_fields = ['users[0].signature']
+---
+code: |
+  # This is a placeholder for the addresses that will be searched
+  # for matching address to court. Edit if court venue is based on 
+  # a different address than the user's
+  [user.address.address for user in users.complete_elements()]
+  addresses_to_search = [user.address for user in users.complete_elements()]
+---
+id: complaint to establish paternity review screen
+event: review_complaint_to_establish_paternity
+question: |
+  Review your answers
+review:
+  - Edit: docket_number
+    button: |
+      **Docket number**:
+      ${ docket_number }
+  - Edit: users.revisit
+    button: |
+      **Users**
+
+      % for item in users:
+        * ${ item }
+      % endfor
+  - Edit: trial_court
+    button: |
+      **Trial court**
+  
+      % if defined("trial_court.division"):
+      * division: ${ trial_court.division }
+      % endif
+  - Edit: other_parties.revisit
+    button: |
+      **Other parties**
+
+      % for item in other_parties:
+        * ${ item }
+      % endfor
+  - Edit: other_parties1_middle_initial
+    button: |
+      **Other parties1 middle initial**:
+      ${ other_parties1_middle_initial }
+  - Edit: is_parent_yes
+    button: |
+      **Is parent**:
+      ${ word(yesno(is_parent_yes)) }
+  - Edit: is_father_yes
+    button: |
+      **Is father**:
+      ${ word(yesno(is_father_yes)) }
+  - Edit: is_mother_yes
+    button: |
+      **Is mother**:
+      ${ word(yesno(is_mother_yes)) }
+  - Edit: is_child_yes
+    button: |
+      **Is child**:
+      ${ word(yesno(is_child_yes)) }
+  - Edit: is_guardian_yes
+    button: |
+      **Is guardian**:
+      ${ word(yesno(is_guardian_yes)) }
+  - Edit: is_custodian_yes
+    button: |
+      **Is custodian**:
+      ${ word(yesno(is_custodian_yes)) }
+  - Edit: is_personal_representative_yes
+    button: |
+      **Is personal representative**:
+      ${ word(yesno(is_personal_representative_yes)) }
+  - Edit: is_father_gp_pr_yes
+    button: |
+      **Is father gp pr**:
+      ${ word(yesno(is_father_gp_pr_yes)) }
+  - Edit: is_grandparent_yes
+    button: |
+      **Is grandparent**:
+      ${ word(yesno(is_grandparent_yes)) }
+  - Edit: is_mother_gp_pr_yes
+    button: |
+      **Is mother gp pr**:
+      ${ word(yesno(is_mother_gp_pr_yes)) }
+  - Edit: is_dor_yes
+    button: |
+      **Is dor**:
+      ${ word(yesno(is_dor_yes)) }
+  - Edit: is_agency_yes
+    button: |
+      **Is agency**:
+      ${ word(yesno(is_agency_yes)) }
+  - Edit: is_dcf_yes
+    button: |
+      **Is dcf**:
+      ${ word(yesno(is_dcf_yes)) }
+  - Edit: children.revisit
+    button: |
+      **Children**
+
+      % for item in children:
+        * ${ item }
+      % endfor
+  - Edit: is_other_party_mother_of_child_yes
+    button: |
+      **Is other party mother of child**:
+      ${ word(yesno(is_other_party_mother_of_child_yes)) }
+  - Edit: is_other_party_father_of_child_yes
+    button: |
+      **Is other party father of child**:
+      ${ word(yesno(is_other_party_father_of_child_yes)) }
+  - Edit: is_adjudicate_the_user_or_other_party_to_be_father_of_child_yes_variable
+    button: |
+      **Is adjudicate the user or other party to be father of child yes variable**:
+      ${ word(yesno(is_adjudicate_the_user_or_other_party_to_be_father_of_child_yes_variable)) }
+  - Edit: is_adjudicate_plaintiff_yes
+    button: |
+      **Is adjudicate plaintiff**:
+      ${ word(yesno(is_adjudicate_plaintiff_yes)) }
+  - Edit: is_adjudicate_defendant_yes
+    button: |
+      **Is adjudicate defendant**:
+      ${ word(yesno(is_adjudicate_defendant_yes)) }
+  - Edit: is_to_order_suitable_amount_of_child_support_yes
+    button: |
+      **Is to order suitable amount of child support**:
+      ${ word(yesno(is_to_order_suitable_amount_of_child_support_yes)) }
+  - Edit: is_asking_order_the_user_or_other_party_to_maintain_or_provide_insurance_yes_variable
+    button: |
+      **Is asking order the user or other party to maintain or provide insurance yes variable**:
+      ${ word(yesno(is_asking_order_the_user_or_other_party_to_maintain_or_provide_insurance_yes_variable)) }
+  - Edit: is_order_defendant_health_insurance_yes
+    button: |
+      **Is order defendant health insurance**:
+      ${ word(yesno(is_order_defendant_health_insurance_yes)) }
+  - Edit: is_provide_health_insurance_yes
+    button: |
+      **Is provide health insurance**:
+      ${ word(yesno(is_provide_health_insurance_yes)) }
+  - Edit: is_order_plaintiff_health_insurance_yes
+    button: |
+      **Is order plaintiff health insurance**:
+      ${ word(yesno(is_order_plaintiff_health_insurance_yes)) }
+  - Edit: is_maintain_health_insurance_yes
+    button: |
+      **Is maintain health insurance**:
+      ${ word(yesno(is_maintain_health_insurance_yes)) }
+  - Edit: is_asking_to_prohibit_other_party_from_imposing_restraint_yes
+    button: |
+      **Is asking to prohibit other party from imposing restraint**:
+      ${ word(yesno(is_asking_to_prohibit_other_party_from_imposing_restraint_yes)) }
+  - Edit: is_prohibiting_restraint_on_plaintiff_yes
+    button: |
+      **Is prohibiting restraint on plaintiff**:
+      ${ word(yesno(is_prohibiting_restraint_on_plaintiff_yes)) }
+  - Edit: is_prohibiting_restraint_on_child_yes
+    button: |
+      **Is prohibiting restraint on child**:
+      ${ word(yesno(is_prohibiting_restraint_on_child_yes)) }
+  - Edit: is_granting_plaintiff_custody_yes
+    button: |
+      **Is granting plaintiff custody**:
+      ${ word(yesno(is_granting_plaintiff_custody_yes)) }
+  - Edit: is_asking_grant_user_or_other_party_custody_yes
+    button: |
+      **Is asking grant user or other party custody**:
+      ${ word(yesno(is_asking_grant_user_or_other_party_custody_yes)) }
+  - Edit: is_granting_defendant_custody_yes
+    button: |
+      **Is granting defendant custody**:
+      ${ word(yesno(is_granting_defendant_custody_yes)) }
+  - Edit: is_asking_grant_user_or_other_party_parenting_time_yes
+    button: |
+      **Is asking grant user or other party parenting time**:
+      ${ word(yesno(is_asking_grant_user_or_other_party_parenting_time_yes)) }
+  - Edit: is_granting_plaintiff_parenting_time_yes
+    button: |
+      **Is granting plaintiff parenting time**:
+      ${ word(yesno(is_granting_plaintiff_parenting_time_yes)) }
+  - Edit: is_granting_defendant_parenting_time_yes
+    button: |
+      **Is granting defendant parenting time**:
+      ${ word(yesno(is_granting_defendant_parenting_time_yes)) }
+  - Edit: signature_date
+    button: |
+      **Date of signature**:
+      ${ signature_date }
+  - Edit: users1_name_1
+    button: |
+      **Users1 name 1**:
+      ${ users1_name_1 }
+  - Edit: users1_address_unit_1
+    button: |
+      **Users1 address unit 1**:
+      ${ users1_address_unit_1 }
+  - Edit: users1_address_address_1
+    button: |
+      **Users1 address address 1**:
+      ${ users1_address_address_1 }
+  - Edit: users1_address_city_1
+    button: |
+      **Users1 address city 1**:
+      ${ users1_address_city_1 }
+  - Edit: users1_address_state_1
+    button: |
+      **Users1 address state 1**:
+      ${ users1_address_state_1 }
+  - Edit: users1_address_zip_1
+    button: |
+      **Users1 address zip 1**:
+      ${ users1_address_zip_1 }
+---
+continue button field: users.revisit
+question: |
+  Edit users
+subquestion: |
+  ${ users.table }
+
+  ${ users.add_action() }
+---
+table: users.table
+rows: users
+columns:
+  - Name: |
+      row_item.name.full() if defined("row_item.name.last") else ""
+  - Address: |
+      row_item.address.block() if defined("row_item.address.zip") else ""
+  - Signature: |
+      row_item.signature if defined("row_item.signature") else ""
+  - Phone number: |
+      row_item.phone_number if defined("row_item.phone_number") else ""
+edit:
+  - name.last
+  - address.zip
+  - signature
+  - phone_number
+confirm: True
+
+---
+continue button field: other_parties.revisit
+question: |
+  Edit other_parties
+subquestion: |
+  ${ other_parties.table }
+
+  ${ other_parties.add_action() }
+---
+table: other_parties.table
+rows: other_parties
+columns:
+  - Name: |
+      row_item.name.full() if defined("row_item.name.last") else ""
+  - Address: |
+      row_item.address.block() if defined("row_item.address.zip") else ""
+edit:
+  - name.last
+  - address.zip
+confirm: True
+
+---
+continue button field: children.revisit
+question: |
+  Edit children
+subquestion: |
+  ${ children.table }
+
+  ${ children.add_action() }
+---
+table: children.table
+rows: children
+columns:
+  - Name: |
+      row_item.name.full() if defined("row_item.name.last") else ""
+  - Birthdate: |
+      row_item.birthdate if defined("row_item.birthdate") else ""
+  - Address: |
+      row_item.address.block() if defined("row_item.address.zip") else ""
+edit:
+  - name.last
+  - birthdate
+  - address.zip
+confirm: True
+
+---
+id: download complaint_to_establish_paternity
+event: complaint_to_establish_paternity_download
+question: |
+  All done
+subquestion: |
+  Thank you ${users}. Your form is ready to download and deliver.
+  
+  View, download and send your form below. Click the "Edit answers" button to fix any mistakes.
+
+  ${ action_button_html(url_action('review_complaint_to_establish_paternity'), label='Edit answers', color='info') }
+  
+  
+  ${ al_user_bundle.download_list_html() }
+  
+
+  ${ al_user_bundle.send_button_html(show_editable_checkbox=False) }
+
+progress: 100
+---
+# ALDocument objects specify the metadata for each template
+objects:
+  - complaint_to_establish_paternity_Post_interview_instructions: ALDocument.using(title="Instructions", filename="complaint_to_establish_paternity_next_steps.docx", enabled=True, has_addendum=False)
+  - complaint_to_establish_paternity_attachment: ALDocument.using(title="Complaint to Establish Paternity", filename="complaint_to_establish_paternity", enabled=True, has_addendum=False, )
+---
+# Bundles group the ALDocuments into separate downloads, such as for court and for the user
+objects:
+  - al_user_bundle: ALDocumentBundle.using(elements=[complaint_to_establish_paternity_Post_interview_instructions, complaint_to_establish_paternity_attachment], filename="complaint_to_establish_paternity", title="All forms to download for your records", enabled=True)
+  - al_court_bundle: ALDocumentBundle.using(elements=[complaint_to_establish_paternity_attachment],  filename="complaint_to_establish_paternity", title="All forms to deliver to court", enabled=True)
+---
+# Each attachment defines a key in an ALDocument. We use `i` as the placeholder here so the same template is 
+# used for "preview" and "final" keys, and logic in the template checks the value of 
+# `i` to show or hide the user's signature
+attachment:
+  name: Post-interview-Instructions
+  filename: complaint_to_establish_paternity_next_steps
+  docx template file: complaint_to_establish_paternity_next_steps.docx
+  variable name: complaint_to_establish_paternity_Post_interview_instructions[i]
+  skip undefined: True
+---
+attachment:
+  name: complaint to establish paternity
+  filename: complaint_to_establish_paternity
+  variable name: complaint_to_establish_paternity_attachment[i]
+  skip undefined: True
+  pdf template file: complaint_to_establish_paternity.pdf
+  fields:
+      - "docket_number": ${ docket_number }
+      - "users1_name": ${ users[0] }
+      - "users1_name_middle_initial": ${ users[0].name.middle_initial() }
+      - "users1_name_last": ${ users[0].name.last }
+      - "trial_court_division": ${ trial_court.division }
+      - "other_parties1_name_first": ${ other_parties[0].name.first }
+      - "other_parties1_middle_initial": ${ other_parties1_middle_initial }
+      - "other_parties1_name_last": ${ other_parties[0].name.last }
+      - "users1_address_address": ${ users[0].address.address }
+      - "users1_address_unit": ${ users[0].address.unit }
+      - "users1_address_city": ${ users[0].address.city }
+      - "users1_address_state": ${ users[0].address.state }
+      - "users1_address_zip": ${ users[0].address.zip }
+      - "is_parent_yes": ${ is_parent_yes }
+      - "is_father_yes": ${ is_father_yes }
+      - "is_mother_yes": ${ is_mother_yes }
+      - "is_child_yes": ${ is_child_yes }
+      - "is_guardian_yes": ${ is_guardian_yes }
+      - "is_custodian_yes": ${ is_custodian_yes }
+      - "is_personal_representative_yes": ${ is_personal_representative_yes }
+      - "is_father_gp_pr_yes": ${ is_father_gp_pr_yes }
+      - "is_grandparent_yes": ${ is_grandparent_yes }
+      - "is_mother_gp_pr_yes": ${ is_mother_gp_pr_yes }
+      - "is_dor_yes": ${ is_dor_yes }
+      - "is_agency_yes": ${ is_agency_yes }
+      - "is_dcf_yes": ${ is_dcf_yes }
+      - "children1_name_first": ${ children[0].name.first }
+      - "children1_name_middle_initial": ${ children[0].name.middle_initial() }
+      - "children1_name_last": ${ children[0].name.last }
+      - "children1_age": ${ children[0].age_in_years() }
+      - "children1_birthdate": ${ children[0].birthdate.format() }
+      - "children1_address_city": ${ children[0].address.city }
+      - "children1_address_address": ${ children[0].address.address }
+      - "children1_address_unit": ${ children[0].address.unit }
+      - "children1_address_state": ${ children[0].address.state }
+      - "children1_address_zip": ${ children[0].address.zip }
+      - "other_parties1_address_address": ${ other_parties[0].address.address }
+      - "other_parties1_address_unit": ${ other_parties[0].address.unit }
+      - "other_parties1_address_city": ${ other_parties[0].address.city }
+      - "other_parties1_address_state": ${ other_parties[0].address.state }
+      - "other_parties1_address_zip": ${ other_parties[0].address.zip }
+      - "is_other_party_mother_of_child_yes": ${ is_other_party_mother_of_child_yes }
+      - "is_other_party_father_of_child_yes": ${ is_other_party_father_of_child_yes }
+      - "is_adjudicate_the_user_or_other_party_to_be_father_of_child_yes_variable": ${ is_adjudicate_the_user_or_other_party_to_be_father_of_child_yes_variable }
+      - "is_adjudicate_plaintiff_yes": ${ is_adjudicate_plaintiff_yes }
+      - "is_adjudicate_defendant_yes": ${ is_adjudicate_defendant_yes }
+      - "is_to_order_suitable_amount_of_child_support_yes": ${ is_to_order_suitable_amount_of_child_support_yes }
+      - "is_asking_order_the_user_or_other_party_to_maintain_or_provide_insurance_yes_variable": ${ is_asking_order_the_user_or_other_party_to_maintain_or_provide_insurance_yes_variable }
+      - "is_order_defendant_health_insurance_yes": ${ is_order_defendant_health_insurance_yes }
+      - "is_provide_health_insurance_yes": ${ is_provide_health_insurance_yes }
+      - "is_order_plaintiff_health_insurance_yes": ${ is_order_plaintiff_health_insurance_yes }
+      - "is_maintain_health_insurance_yes": ${ is_maintain_health_insurance_yes }
+      - "is_asking_to_prohibit_other_party_from_imposing_restraint_yes": ${ is_asking_to_prohibit_other_party_from_imposing_restraint_yes }
+      - "is_prohibiting_restraint_on_plaintiff_yes": ${ is_prohibiting_restraint_on_plaintiff_yes }
+      - "is_prohibiting_restraint_on_child_yes": ${ is_prohibiting_restraint_on_child_yes }
+      - "is_granting_plaintiff_custody_yes": ${ is_granting_plaintiff_custody_yes }
+      - "is_asking_grant_user_or_other_party_custody_yes": ${ is_asking_grant_user_or_other_party_custody_yes }
+      - "is_granting_defendant_custody_yes": ${ is_granting_defendant_custody_yes }
+      - "is_asking_grant_user_or_other_party_parenting_time_yes": ${ is_asking_grant_user_or_other_party_parenting_time_yes }
+      - "is_granting_plaintiff_parenting_time_yes": ${ is_granting_plaintiff_parenting_time_yes }
+      - "is_granting_defendant_parenting_time_yes": ${ is_granting_defendant_parenting_time_yes }
+      - "users1_signature": ${ users[0].signature_1 }
+      - "signature_date": ${ signature_date }
+      - "users1_name_1": ${ users1_name_1 }
+      - "users1_address_unit_1": ${ users1_address_unit_1 }
+      - "users1_address_address_1": ${ users1_address_address_1 }
+      - "users1_address_city_1": ${ users1_address_city_1 }
+      - "users1_address_state_1": ${ users1_address_state_1 }
+      - "users1_address_zip_1": ${ users1_address_zip_1 }
+      - "users1_phone_number": ${ users[0].phone_number_1 }
+
+
